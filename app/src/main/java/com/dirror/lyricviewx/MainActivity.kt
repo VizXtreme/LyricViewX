@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
     private var audioUri: Uri? = null
 
     // Register file pickers using modern Activity Result API
-    private val pickAudioLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+    private val pickAudioLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
         if (uri != null) {
             setupAudio(uri)
         } else {
@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val pickLrcLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+    private val pickLrcLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
         if (uri != null) {
             setupLrc(uri)
         } else {
@@ -120,13 +120,22 @@ class MainActivity : AppCompatActivity() {
 
         // File pickers setup
         btnLoadAudio.setOnClickListener {
-            // Pick audio files
-            pickAudioLauncher.launch("audio/*")
+            try {
+                pickAudioLauncher.launch(arrayOf("audio/*"))
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(this, "Unable to open file picker: ${e.message}", Toast.LENGTH_LONG).show()
+            }
         }
 
         btnLoadLrc.setOnClickListener {
-            // Pick any text/LRC document
-            pickLrcLauncher.launch("*/*")
+            try {
+                // OpenDocument needs array of MIME types
+                pickLrcLauncher.launch(arrayOf("*/*"))
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(this, "Unable to open file picker: ${e.message}", Toast.LENGTH_LONG).show()
+            }
         }
 
         // Play / Pause handling
